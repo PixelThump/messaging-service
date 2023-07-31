@@ -52,8 +52,9 @@ class StompMessageFactoryImplTest {
     void getMessage_WITH_GAME_STATE_SHOULD_RETURN_GAME_STATE_STOMP_MESSAGE_WITH_GAME_STATE() {
 
         SeshStateWrapper state = new SeshStateWrapper();
+        state.setState("hallo");
         StateStompMessage expected = new StateStompMessage();
-        expected.setState(state);
+        expected.setState(state.getState());
         StompMessage result = messageFactory.getMessage(state);
         assertEquals(expected, result);
     }
