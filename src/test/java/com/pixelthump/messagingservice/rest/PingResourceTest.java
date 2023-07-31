@@ -1,3 +1,4 @@
+package com.pixelthump.messagingservice.rest;
 import com.pixelthump.messagingservice.Application;
 import com.pixelthump.messagingservice.rest.PingResource;
 import com.pixelthump.messagingservice.rest.model.Ping;
