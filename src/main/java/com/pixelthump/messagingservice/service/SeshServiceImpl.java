@@ -56,7 +56,7 @@ public class SeshServiceImpl implements SeshService {
 	private SeshState joinSesh(String seshCode, String seshType, Player player, String role) {
 
 		try {
-			String apiUrl = backendBasePath + "/" + seshType + "/seshs/" + seshCode + "/" + role;
+			String apiUrl = backendBasePath + "/" + seshType + "/seshs/" + seshCode + "/players/" + role;
 			ResponseEntity<SeshState> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshState.class);
 			return responseEntity.getBody();
 		} catch (RestClientException e) {
@@ -67,5 +67,12 @@ public class SeshServiceImpl implements SeshService {
 	@Override
 	public void sendCommandToSesh(CommandStompMessage message, String seshCode) {
 
+		try {
+			SeshInfo seshInfo = getSeshInfo(seshCode);
+			String apiUrl = backendBasePath + "/" + seshInfo.getName() + "/seshs/" + seshCode + "/commands";
+			restTemplate.postForEntity(apiUrl, message, String.class);
+		} catch (RestClientException e) {
+			throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
+		}
 	}
 }
