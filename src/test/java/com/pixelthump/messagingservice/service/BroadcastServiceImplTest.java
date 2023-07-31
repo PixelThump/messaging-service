@@ -1,6 +1,5 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.Application;
-import com.pixelthump.messagingservice.service.model.SeshState;
 import com.pixelthump.messagingservice.service.model.SeshUpdate;
 import com.pixelthump.messagingservice.service.model.message.GenericStompMessage;
 import com.pixelthump.messagingservice.service.model.message.StompMessage;

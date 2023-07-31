@@ -1,5 +1,5 @@
 package com.pixelthump.messagingservice.service;
-import com.pixelthump.messagingservice.service.model.SeshState;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
 
             message = getMessage(exception);
 
-        } else if (payload instanceof SeshState state) {
+        } else if (payload instanceof SeshStateWrapper state) {
 
             message = getMessage(state);
         } else {
@@ -41,7 +41,7 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
         return message;
     }
 
-    private StateStompMessage getMessage(SeshState seshState) {
+    private StateStompMessage getMessage(SeshStateWrapper seshState) {
 
         final StateStompMessage message = new StateStompMessage();
         message.setState(seshState);

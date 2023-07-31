@@ -1,7 +1,7 @@
 package com.pixelthump.messagingservice.stomp;
 import com.pixelthump.messagingservice.service.SeshService;
 import com.pixelthump.messagingservice.service.StompMessageFactory;
-import com.pixelthump.messagingservice.service.model.SeshState;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
 import com.pixelthump.messagingservice.service.model.message.StompMessage;
 import lombok.extern.log4j.Log4j2;
@@ -34,10 +34,9 @@ public class SeshController {
 
         log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}", playerName, seshCode, socketId);
         try {
-            SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
+            SeshStateWrapper state = seshService.joinAsController(seshCode, playerName, socketId);
             StompMessage reply = messageFactory.getMessage(state);
             log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
-
             return reply;
         } catch (Exception e) {
 
@@ -53,7 +52,7 @@ public class SeshController {
 
         log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={})", seshCode, socketId);
         try {
-            SeshState state = seshService.joinAsHost(seshCode, socketId);
+            SeshStateWrapper state = seshService.joinAsHost(seshCode, socketId);
             StompMessage reply = messageFactory.getMessage(state);
             log.info("StompControllerImpl: Exiting joinSesh(reply={})", reply);
 
@@ -72,7 +71,7 @@ public class SeshController {
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
             message.getCommand().setPlayerId(socketId);
-            com.pixelthump.messagingservice.service.model.message.CommandStompMessage commandStompMessage = modelMapper.map(message, com.pixelthump.messagingservice.service.model.message.CommandStompMessage.class);
+            CommandStompMessage commandStompMessage = modelMapper.map(message, CommandStompMessage.class);
             this.seshService.sendCommandToSesh(commandStompMessage, seshCode);
             StompMessage reply = messageFactory.getAckMessage();
             log.info("Exiting sendCommandToSesh with reply={}", reply);

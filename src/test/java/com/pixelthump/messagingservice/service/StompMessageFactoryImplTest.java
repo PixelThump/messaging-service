@@ -1,6 +1,6 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.Application;
-import com.pixelthump.messagingservice.service.model.SeshState;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +51,7 @@ class StompMessageFactoryImplTest {
     @Test
     void getMessage_WITH_GAME_STATE_SHOULD_RETURN_GAME_STATE_STOMP_MESSAGE_WITH_GAME_STATE() {
 
-        SeshState state = new SeshState(){};
+        SeshStateWrapper state = new SeshStateWrapper();
         StateStompMessage expected = new StateStompMessage();
         expected.setState(state);
         StompMessage result = messageFactory.getMessage(state);

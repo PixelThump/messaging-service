@@ -1,7 +1,7 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.service.model.Player;
 import com.pixelthump.messagingservice.service.model.SeshInfo;
-import com.pixelthump.messagingservice.service.model.SeshState;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +42,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshState joinAsController(String seshCode, String playerName, String socketId) {
+    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId) {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player(playerName, socketId);
@@ -50,18 +50,18 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshState joinAsHost(String seshCode, String socketId) {
+    public SeshStateWrapper joinAsHost(String seshCode, String socketId) {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player("host", socketId);
         return joinSesh(seshInfo, player, "host");
     }
 
-    private SeshState joinSesh(SeshInfo seshInfo, Player player, String role) {
+    private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role) {
 
         try {
             String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role;
-            ResponseEntity<SeshState> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshState.class);
+            ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshStateWrapper.class);
             return responseEntity.getBody();
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());

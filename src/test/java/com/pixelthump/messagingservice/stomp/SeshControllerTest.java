@@ -2,7 +2,7 @@ package com.pixelthump.messagingservice.stomp;
 import com.pixelthump.messagingservice.Application;
 import com.pixelthump.messagingservice.service.SeshService;
 import com.pixelthump.messagingservice.service.StompMessageFactory;
-import com.pixelthump.messagingservice.service.model.SeshState;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class SeshControllerTest {
     @Test
     void joinSessionAsHost_should_return_state_message_when_called_with_existing_session() {
 
-        SeshState state = new SeshState(){};
+        SeshStateWrapper state = new SeshStateWrapper();
         when(seshServiceMock.joinAsHost(seshCode, socketId)).thenReturn(state);
 
         StompMessage expected = new StateStompMessage(state);
@@ -83,7 +83,7 @@ class SeshControllerTest {
     @Test
     void joinSessionAsController_should_return_state_message_when_called_with_existing_session() {
 
-        SeshState state = new SeshState(){};
+        SeshStateWrapper state = new SeshStateWrapper();
         when(seshServiceMock.joinAsController(seshCode, playerName, socketId)).thenReturn(state);
 
         StompMessage expected = new StateStompMessage(state);
