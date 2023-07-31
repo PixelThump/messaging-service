@@ -44,7 +44,7 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
     private StateStompMessage getMessage(SeshStateWrapper seshState) {
 
         final StateStompMessage message = new StateStompMessage();
-        message.setState(seshState);
+        message.setState(seshState.getState());
         return message;
     }
 
