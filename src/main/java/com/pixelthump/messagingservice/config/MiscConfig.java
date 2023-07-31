@@ -1,4 +1,4 @@
-package com.roboter5123.backendtemplate;
+package com.pixelthump.messagingservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

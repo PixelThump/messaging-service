@@ -1,4 +1,4 @@
-package com.pixelthump.seshservice.config;
+package com.pixelthump.messagingservice.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;

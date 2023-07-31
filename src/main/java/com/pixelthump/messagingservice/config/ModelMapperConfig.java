@@ -1,4 +1,4 @@
-package com.roboter5123.backendtemplate.config;
+package com.pixelthump.messagingservice.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
