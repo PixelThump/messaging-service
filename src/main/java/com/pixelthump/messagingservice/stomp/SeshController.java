@@ -33,11 +33,18 @@ public class SeshController {
     public StompMessage joinSeshAsController(@Header final String playerName, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
 
         log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}", playerName, seshCode, socketId);
-        SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
-        StompMessage reply = messageFactory.getMessage(state);
-        log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
+        try {
+            SeshState state = seshService.joinAsController(seshCode, playerName, socketId);
+            StompMessage reply = messageFactory.getMessage(state);
+            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
 
-        return reply;
+            return reply;
+        } catch (Exception e) {
+
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
 
     }
 
@@ -45,23 +52,37 @@ public class SeshController {
     public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
 
         log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={})", seshCode, socketId);
-        SeshState state = seshService.joinAsHost(seshCode, socketId);
-        StompMessage reply = messageFactory.getMessage(state);
-        log.info("StompControllerImpl: Exiting joinSesh(reply={})", reply);
+        try {
+            SeshState state = seshService.joinAsHost(seshCode, socketId);
+            StompMessage reply = messageFactory.getMessage(state);
+            log.info("StompControllerImpl: Exiting joinSesh(reply={})", reply);
 
-        return reply;
+            return reply;
+        } catch (Exception e) {
+
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
     }
 
     @MessageMapping("/topic/sesh/{seshCode}")
     public StompMessage sendCommandToSesh(final CommandStompMessage message, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
 
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
-        message.getCommand().setPlayerId(socketId);
-        com.pixelthump.messagingservice.service.model.message.CommandStompMessage commandStompMessage = modelMapper.map(message, com.pixelthump.messagingservice.service.model.message.CommandStompMessage.class);
-        this.seshService.sendCommandToSesh(commandStompMessage, seshCode);
-        StompMessage reply = messageFactory.getAckMessage();
-        log.info("Exiting sendCommandToSesh with reply={}", reply);
+        try {
+            message.getCommand().setPlayerId(socketId);
+            com.pixelthump.messagingservice.service.model.message.CommandStompMessage commandStompMessage = modelMapper.map(message, com.pixelthump.messagingservice.service.model.message.CommandStompMessage.class);
+            this.seshService.sendCommandToSesh(commandStompMessage, seshCode);
+            StompMessage reply = messageFactory.getAckMessage();
+            log.info("Exiting sendCommandToSesh with reply={}", reply);
 
-        return reply;
+            return reply;
+        } catch (Exception e) {
+
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
     }
 }
