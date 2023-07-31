@@ -1,5 +1,6 @@
 package com.pixelthump.messagingservice.rest;
 
+import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import com.pixelthump.messagingservice.service.model.SeshUpdate;
 
 @RestController
 @RequestMapping("/seshs/{seshCode}/broadcasts")
+@Log4j2
 public class BroadcastResource {
 
 	private final ModelMapper modelMapper;
@@ -27,8 +29,10 @@ public class BroadcastResource {
 	@PostMapping
 	public void broadcastToSesh(@PathVariable String seshCode, MessagingSeshUpdate messagingSeshUpdate) {
 
+		log.info("Started broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
 		SeshUpdate seshUpdate = modelMapper.map(messagingSeshUpdate, SeshUpdate.class);
 		broadcastService.broadcastToSesh(seshCode, seshUpdate);
+		log.info("Finished broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
 	}
 
 }
