@@ -4,5 +4,5 @@ import com.pixelthump.messagingservice.service.model.SeshUpdate;
 
 public interface BroadcastService {
 
-	void broadcastToSesh(SeshUpdate seshUpdate);
+	void broadcastToSesh(String seshCode, SeshUpdate seshUpdate);
 }
