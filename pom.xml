@@ -11,7 +11,7 @@
     <groupId>com.pixelthump</groupId>
     <artifactId>messaging-service</artifactId>
     <version>0.0.0-SNAPSHOT</version>
-    <name>MEssaging Service</name>
+    <name>Messaging Service</name>
     <description>This is the component that handles websocket conenctions with the user and relays their requests to the respective service</description>
     <properties>
         <java.version>17</java.version>
