@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class SeshInfo {
 
-	private String name;
+	private String seshType;
+	private String seshCode;
 }

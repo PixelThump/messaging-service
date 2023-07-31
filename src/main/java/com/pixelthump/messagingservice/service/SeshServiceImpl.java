@@ -46,7 +46,7 @@ public class SeshServiceImpl implements SeshService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player(playerName, socketId);
-        return joinSesh(seshCode, seshInfo.getName(), player, "controller");
+        return joinSesh(seshInfo, player, "controller");
     }
 
     @Override
@@ -54,13 +54,13 @@ public class SeshServiceImpl implements SeshService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player("host", socketId);
-        return joinSesh(seshCode, seshInfo.getName(), player, "host");
+        return joinSesh(seshInfo, player, "host");
     }
 
-    private SeshState joinSesh(String seshCode, String seshType, Player player, String role) {
+    private SeshState joinSesh(SeshInfo seshInfo, Player player, String role) {
 
         try {
-            String apiUrl = backendBasePath + "/" + seshType + "/seshs/" + seshCode + "/players/" + role;
+            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role;
             ResponseEntity<SeshState> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshState.class);
             return responseEntity.getBody();
         } catch (RestClientException e) {
@@ -74,7 +74,7 @@ public class SeshServiceImpl implements SeshService {
         try {
 
             SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
-            String apiUrl = backendBasePath + "/" + seshInfo.getName() + "/seshs/" + seshCode + "/commands";
+            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/commands";
             restTemplate.postForEntity(apiUrl, message, String.class);
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
