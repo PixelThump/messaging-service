@@ -1,6 +1,6 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
-import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
+import com.pixelthump.messagingservice.service.model.message.Command;
 
 public interface SeshService {
 
@@ -8,5 +8,5 @@ public interface SeshService {
 
     SeshStateWrapper joinAsHost(String seshCode, String socketId);
 
-    void sendCommandToSesh(CommandStompMessage message, String seshCode);
+    void sendCommandToSesh(Command message, String seshCode);
 }

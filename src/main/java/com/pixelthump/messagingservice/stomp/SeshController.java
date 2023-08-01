@@ -19,14 +19,12 @@ public class SeshController {
 
     private final SeshService seshService;
     private final StompMessageFactory messageFactory;
-    private final ModelMapper modelMapper;
 
     @Autowired
-    public SeshController(SeshService seshService, StompMessageFactory messageFactory, ModelMapper modelMapper) {
+    public SeshController(SeshService seshService, StompMessageFactory messageFactory) {
 
         this.seshService = seshService;
         this.messageFactory = messageFactory;
-        this.modelMapper = modelMapper;
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/controller")
@@ -71,8 +69,7 @@ public class SeshController {
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
             message.getCommand().setPlayerId(socketId);
-            CommandStompMessage commandStompMessage = modelMapper.map(message, CommandStompMessage.class);
-            this.seshService.sendCommandToSesh(commandStompMessage, seshCode);
+            this.seshService.sendCommandToSesh(message.getCommand(), seshCode);
             StompMessage reply = messageFactory.getAckMessage();
             log.info("Exiting sendCommandToSesh with reply={}", reply);
 

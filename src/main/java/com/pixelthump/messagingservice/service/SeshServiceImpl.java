@@ -2,6 +2,7 @@ package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.service.model.Player;
 import com.pixelthump.messagingservice.service.model.SeshInfo;
 import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
+import com.pixelthump.messagingservice.service.model.message.Command;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +70,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public void sendCommandToSesh(CommandStompMessage message, String seshCode) {
+    public void sendCommandToSesh(Command message, String seshCode) {
 
         try {
 
