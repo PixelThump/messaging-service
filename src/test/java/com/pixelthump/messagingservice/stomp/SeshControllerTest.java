@@ -101,11 +101,11 @@ class SeshControllerTest {
 
         when(factoryMock.getAckMessage()).thenReturn(expected);
 
-        Command incomingCommand = new Command(socketId, new Action<>(playerName, "Chat message"));
+        Command incomingCommand = new Command(socketId, playerName, "Chat message");
         CommandStompMessage incomingMessage = new CommandStompMessage(incomingCommand);
         StompMessage result = seshStompcontroller.sendCommandToSesh(incomingMessage, seshCode, this.socketId);
         assertEquals(expected, result);
-        verify(seshServiceMock).sendCommandToSesh(incomingMessage, seshCode);
+        verify(seshServiceMock).sendCommandToSesh(incomingMessage.getCommand(), seshCode);
     }
 
     @Test
@@ -117,7 +117,7 @@ class SeshControllerTest {
 
         StompMessage expected = new ErrorStompMessage(exception.getMessage());
 
-        Command incomingCommand = new Command(socketId, new Action<>(playerName, "Chat message"));
+        Command incomingCommand = new Command(socketId, playerName, "Chat message");
         CommandStompMessage incomingMessage = new CommandStompMessage(incomingCommand);
         StompMessage result = seshStompcontroller.sendCommandToSesh(incomingMessage, seshCode, this.socketId);
         assertEquals(expected, result);

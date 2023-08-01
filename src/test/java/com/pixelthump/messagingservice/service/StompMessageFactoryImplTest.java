@@ -36,10 +36,11 @@ class StompMessageFactoryImplTest {
     @Test
     void getMessage_WITH_COMMAND_SHOULD_RETURN_COMMAND_STOMP_MESSAGE_WITH_COMMAND() {
 
-        Command serviceCommand= new Command(playerName, new Action<>("asd", "asd"));
+        Command serviceCommand= new Command(playerName,"asd", "asd");
 
         Command command = new Command();
-        command.setAction(new Action<>("asd", "asd"));
+        command.setType("asd");
+        command.setBody("asd");
         command.setPlayerId(playerName);
 
         CommandStompMessage expected = new CommandStompMessage();
