@@ -1,9 +1,10 @@
 package com.pixelthump.messagingservice.rest.model;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import lombok.Data;
 
 @Data
 public class MessagingSeshUpdate {
 
-    private Object host;
-    private Object controller;
+    private SeshStateWrapper host;
+    private SeshStateWrapper controller;
 }
