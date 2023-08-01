@@ -4,6 +4,6 @@ import lombok.Data;
 @Data
 public class SeshUpdate {
 
-    private SeshStateWrapper host;
-    private SeshStateWrapper controller;
+    private Object host;
+    private Object controller;
 }
