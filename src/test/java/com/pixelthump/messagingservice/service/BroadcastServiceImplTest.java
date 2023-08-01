@@ -1,5 +1,6 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.Application;
+import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.SeshUpdate;
 import com.pixelthump.messagingservice.service.model.message.GenericStompMessage;
 import com.pixelthump.messagingservice.service.model.message.StompMessage;
@@ -46,8 +47,8 @@ class BroadcastServiceImplTest {
     void broadcastSeshUpdateToControllers_WITH_NON_SUPPORTED_PAYLOAD_SHOULD_THROW_EXCEPTION() {
 
         SeshUpdate seshUpdate = new SeshUpdate();
-        seshUpdate.setController("hi");
-        seshUpdate.setHost("hi");
+        seshUpdate.setController(new SeshStateWrapper());
+        seshUpdate.setHost(new SeshStateWrapper());
         StompMessage stompMessage = new GenericStompMessage();
         when(factory.getMessage(any())).thenReturn(stompMessage).thenThrow(new UnsupportedOperationException());
         assertThrows(UnsupportedOperationException.class, () -> messageBroadcaster.broadcastToSesh(sessionCode, seshUpdate));
@@ -57,8 +58,8 @@ class BroadcastServiceImplTest {
     void broadcastSeshUpdateToControllers_WITH_NON_SUPPORTED_PAYLOAD_SHOULD_THROW_EXCEPTION_FIRST() {
 
         SeshUpdate seshUpdate = new SeshUpdate();
-        seshUpdate.setController("hi");
-        seshUpdate.setHost("hi");
+        seshUpdate.setController(new SeshStateWrapper());
+        seshUpdate.setHost(new SeshStateWrapper());
         StompMessage stompMessage = new GenericStompMessage();
         when(factory.getMessage(any())).thenThrow(new UnsupportedOperationException());
         assertThrows(UnsupportedOperationException.class, () -> messageBroadcaster.broadcastToSesh(sessionCode, seshUpdate));
