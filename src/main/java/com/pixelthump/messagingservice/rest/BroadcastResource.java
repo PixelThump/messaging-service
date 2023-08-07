@@ -9,7 +9,7 @@ import com.pixelthump.messagingservice.service.BroadcastService;
 import com.pixelthump.messagingservice.service.model.SeshUpdate;
 
 @RestController
-@RequestMapping("/seshs/{seshCode}/broadcasts")
+@RequestMapping("/seshs/{seshCode}/broadcasts/state")
 @Log4j2
 public class BroadcastResource {
 
