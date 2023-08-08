@@ -81,4 +81,23 @@ public class SeshController {
             return reply;
         }
     }
+
+    @MessageMapping("/topic/sesh/{seshCode}/broadcasts/state")
+    public StompMessage broadcastState(final CommandStompMessage message, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
+
+        log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
+        try {
+            message.getCommand().setPlayerId(socketId);
+            this.seshService.sendCommandToSesh(message.getCommand(), seshCode);
+            StompMessage reply = messageFactory.getAckMessage();
+            log.info("Exiting sendCommandToSesh with reply={}", reply);
+
+            return reply;
+        } catch (Exception e) {
+
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
+    }
 }
