@@ -1,8 +1,10 @@
 package com.pixelthump.messagingservice.stomp;
+import com.pixelthump.messagingservice.rest.model.MessagingSeshUpdate;
+import com.pixelthump.messagingservice.service.BroadcastService;
 import com.pixelthump.messagingservice.service.SeshService;
-import org.modelmapper.ModelMapper;
 import com.pixelthump.messagingservice.service.StompMessageFactory;
 import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
+import com.pixelthump.messagingservice.service.model.SeshUpdate;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
 import com.pixelthump.messagingservice.service.model.message.StompMessage;
 import lombok.extern.log4j.Log4j2;
@@ -13,9 +15,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
-import com.pixelthump.messagingservice.rest.model.MessagingSeshUpdate;
-import com.pixelthump.messagingservice.service.BroadcastService;
-import com.pixelthump.messagingservice.service.model.SeshUpdate;
 
 @Controller
 @Log4j2
@@ -90,7 +89,7 @@ public class SeshController {
         }
     }
 
-    @MessageMapping("/topic/sesh/{seshCode}/broadcasts/state")
+    @MessageMapping("/topic/seshs/{seshCode}/broadcasts/state")
     public StompMessage broadcastState(final MessagingSeshUpdate messagingSeshUpdate, @DestinationVariable final String seshCode) {
 
         try {
@@ -98,8 +97,7 @@ public class SeshController {
 		    SeshUpdate seshUpdate = modelMapper.map(messagingSeshUpdate, SeshUpdate.class);
 		    broadcastService.broadcastToSesh(seshCode, seshUpdate);
 		    log.info("Finished broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
-            StompMessage reply = messageFactory.getAckMessage();
-            return reply;
+            return messageFactory.getAckMessage();
         } catch (Exception e) {
 
             StompMessage reply = messageFactory.getMessage(e);
