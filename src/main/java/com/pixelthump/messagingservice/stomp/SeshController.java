@@ -1,5 +1,6 @@
 package com.pixelthump.messagingservice.stomp;
 import com.pixelthump.messagingservice.service.SeshService;
+import org.modelmapper.ModelMapper;
 import com.pixelthump.messagingservice.service.StompMessageFactory;
 import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
@@ -12,6 +13,9 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
+import com.pixelthump.messagingservice.rest.model.MessagingSeshUpdate;
+import com.pixelthump.messagingservice.service.BroadcastService;
+import com.pixelthump.messagingservice.service.model.SeshUpdate;
 
 @Controller
 @Log4j2
@@ -19,12 +23,16 @@ public class SeshController {
 
     private final SeshService seshService;
     private final StompMessageFactory messageFactory;
+    private final ModelMapper modelMapper;
+    private final BroadcastService broadcastService;
 
     @Autowired
-    public SeshController(SeshService seshService, StompMessageFactory messageFactory) {
+    public SeshController(SeshService seshService, StompMessageFactory messageFactory,ModelMapper modelMapper, BroadcastService broadcastService) {
 
         this.seshService = seshService;
         this.messageFactory = messageFactory;
+	this.modelMapper = modelMapper;
+	this.broadcastService = broadcastService;
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/controller")
