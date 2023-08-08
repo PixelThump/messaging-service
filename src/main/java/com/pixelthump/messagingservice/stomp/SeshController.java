@@ -83,15 +83,14 @@ public class SeshController {
     }
 
     @MessageMapping("/topic/sesh/{seshCode}/broadcasts/state")
-    public StompMessage broadcastState(final CommandStompMessage message, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
+    public StompMessage broadcastState(final MessagingSeshUpdate messagingSeshUpdate, @DestinationVariable final String seshCode) {
 
-        log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
-            message.getCommand().setPlayerId(socketId);
-            this.seshService.sendCommandToSesh(message.getCommand(), seshCode);
+            log.info("Started broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
+		    SeshUpdate seshUpdate = modelMapper.map(messagingSeshUpdate, SeshUpdate.class);
+		    broadcastService.broadcastToSesh(seshCode, seshUpdate);
+		    log.info("Finished broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
             StompMessage reply = messageFactory.getAckMessage();
-            log.info("Exiting sendCommandToSesh with reply={}", reply);
-
             return reply;
         } catch (Exception e) {
 
