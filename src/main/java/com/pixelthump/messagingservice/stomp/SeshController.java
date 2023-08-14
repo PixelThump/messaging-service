@@ -41,7 +41,7 @@ public class SeshController {
         try {
             SeshStateWrapper state = seshService.joinAsController(seshCode, playerName, socketId, reconnectToken);
             StompMessage reply = messageFactory.getMessage(state);
-            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reconectToken={}, reply={}", playerName, seshCode, socketId, reconnectToken reply);
+            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reconectToken={}, reply={}", playerName, seshCode, socketId, reconnectToken, reply);
             return reply;
         } catch (Exception e) {
 
