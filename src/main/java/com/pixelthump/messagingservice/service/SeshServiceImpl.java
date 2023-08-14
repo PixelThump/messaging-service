@@ -43,7 +43,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId, string reconnectToken) {
+    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId, String reconnectToken) {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player(playerName, socketId);
@@ -55,7 +55,7 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshStateWrapper joinAsHost(String seshCode, String socketId, string reconnectToken) {
+    public SeshStateWrapper joinAsHost(String seshCode, String socketId, String reconnectToken) {
         
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player("host", socketId);
