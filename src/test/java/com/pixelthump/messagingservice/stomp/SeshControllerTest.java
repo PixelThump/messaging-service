@@ -42,12 +42,12 @@ class SeshControllerTest {
     void joinSessionAsHost_should_return_error_message_when_called_with_non_existent_session() {
 
         ResponseStatusException exception = new ResponseStatusException(HttpStatusCode.valueOf(404));
-        when(seshServiceMock.joinAsHost(seshCode, socketId)).thenThrow(exception);
+        when(seshServiceMock.joinAsHost(seshCode, socketId, null)).thenThrow(exception);
 
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId);
+        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId, null);
 
         assertEquals(expected, result);
     }
@@ -56,12 +56,12 @@ class SeshControllerTest {
     void joinSessionAsHost_should_return_state_message_when_called_with_existing_session() {
 
         SeshStateWrapper state = new SeshStateWrapper();
-        when(seshServiceMock.joinAsHost(seshCode, socketId)).thenReturn(state);
+        when(seshServiceMock.joinAsHost(seshCode, socketId, null)).thenReturn(state);
 
         StompMessage expected = new StateStompMessage(state);
         when(factoryMock.getMessage(any())).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId);
+        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId, null);
 
         assertEquals(expected, result);
     }
@@ -70,12 +70,12 @@ class SeshControllerTest {
     void joinSessionAsController_should_return_error_message_when_called_with_non_existent_session() {
 
         ResponseStatusException exception = new ResponseStatusException(HttpStatusCode.valueOf(404));
-        when(seshServiceMock.joinAsController(seshCode, playerName, socketId)).thenThrow(exception);
+        when(seshServiceMock.joinAsController(seshCode, playerName, socketId, null)).thenThrow(exception);
 
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId);
+        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId, null);
 
         assertEquals(expected, result);
     }
@@ -84,12 +84,12 @@ class SeshControllerTest {
     void joinSessionAsController_should_return_state_message_when_called_with_existing_session() {
 
         SeshStateWrapper state = new SeshStateWrapper();
-        when(seshServiceMock.joinAsController(seshCode, playerName, socketId)).thenReturn(state);
+        when(seshServiceMock.joinAsController(seshCode, playerName, socketId, null)).thenReturn(state);
 
         StompMessage expected = new StateStompMessage(state);
         when(factoryMock.getMessage(any())).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId);
+        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId, null);
 
         assertEquals(expected, result);
     }
