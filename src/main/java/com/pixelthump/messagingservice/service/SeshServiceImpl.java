@@ -53,6 +53,7 @@ public class SeshServiceImpl implements SeshService {
         }else{
             state = reJoinSesh(seshInfo, player, "controller", reconnectToken);
         }
+        return state;
     }
 
     @Override
@@ -66,6 +67,7 @@ public class SeshServiceImpl implements SeshService {
         }else{
             state = reJoinSesh(seshInfo, player, "host", reconnectToken);
         }
+        return state;
     }
 
     private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role) {
