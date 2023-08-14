@@ -14,6 +14,10 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -80,16 +84,19 @@ class SeshControllerTest {
     void joinSessionAsController_should_return_error_message_when_called_with_non_existent_session() {
 
         ResponseStatusException exception = new ResponseStatusException(HttpStatusCode.valueOf(404));
-        when(seshServiceMock.joinAsController(seshCode, playerName, socketId, null)).thenThrow(exception);
+        when(seshServiceMock.joinAsController(any(), any(), any(), any())).thenThrow(exception);
 
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
 
         StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
         when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
-        when(accessor.getHeader("reconnectToken")).thenReturn(null);
-        when(accessor.getHeader("playerName")).thenReturn(playerName);
+        when(accessor.getNativeHeader("reconnectToken")).thenReturn(null);
 
+        List<String> name = new ArrayList<>();
+        name.add(playerName);
+        when(accessor.getNativeHeader("playerName")).thenReturn(name);
+        System.out.println(accessor.getNativeHeader("playerName"));
         StompMessage result = seshStompcontroller.joinSeshAsController(seshCode, accessor);
 
         assertEquals(expected, result);
@@ -107,7 +114,7 @@ class SeshControllerTest {
         StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
         when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
         when(accessor.getHeader("reconnectToken")).thenReturn(null);
-        when(accessor.getHeader("playerName")).thenReturn(playerName);
+        when(accessor.getNativeHeader("playerName")).thenReturn(Collections.singletonList(playerName));
 
         StompMessage result = seshStompcontroller.joinSeshAsController(seshCode, accessor);
 
