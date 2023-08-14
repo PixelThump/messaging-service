@@ -84,7 +84,7 @@ class SeshControllerTest {
     void joinSessionAsController_should_return_error_message_when_called_with_non_existent_session() {
 
         ResponseStatusException exception = new ResponseStatusException(HttpStatusCode.valueOf(404));
-        when(seshServiceMock.joinAsController(any(), any(), any(), any())).thenThrow(exception);
+        when(seshServiceMock.joinAsController(seshCode, playerName, socketId, null)).thenThrow(exception);
 
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);

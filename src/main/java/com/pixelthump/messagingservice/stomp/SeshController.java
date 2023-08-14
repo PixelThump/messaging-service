@@ -92,7 +92,7 @@ public class SeshController {
         if (playerNameList == null || playerNameList.isEmpty()) {
             headers.setPlayerName(null);
         } else {
-            headers.setReconnectToken(playerNameList.get(0));
+            headers.setPlayerName(playerNameList.get(0));
         }
 
         return headers;
