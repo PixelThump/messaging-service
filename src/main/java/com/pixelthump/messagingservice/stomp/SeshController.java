@@ -14,6 +14,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -35,10 +36,13 @@ public class SeshController {
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/controller")
-    public StompMessage joinSeshAsController(@Header final String playerName, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId, final @Header String reconnectToken) {
+    public StompMessage joinSeshAsController(@DestinationVariable final String seshCode, final StompHeaderAccessor headerAccessor) {
 
-        log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}, reconectToken={}", playerName, seshCode, socketId, reconnectToken);
         try {
+            final String playerName = (String) headerAccessor.getHeader("playerName");
+            final String socketId = (String) headerAccessor.getHeader("simpSessionId");
+            final String reconnectToken = (String) headerAccessor.getHeader("reconnectToken");
+            log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}, reconectToken={}", playerName, seshCode, socketId, reconnectToken);
             SeshStateWrapper state = seshService.joinAsController(seshCode, playerName, socketId, reconnectToken);
             StompMessage reply = messageFactory.getMessage(state);
             log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reconectToken={}, reply={}", playerName, seshCode, socketId, reconnectToken, reply);
@@ -53,10 +57,12 @@ public class SeshController {
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/host")
-    public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId, final @Header String reconnectToken) {
+    public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final StompHeaderAccessor headerAccessor) {
 
-        log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={}, reconectToken={})", seshCode, socketId, reconnectToken);
         try {
+            String socketId = (String) headerAccessor.getHeader("simpSessionId");
+            String reconnectToken = (String) headerAccessor.getHeader("reconnectToken");
+            log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={}, reconectToken={})", seshCode, socketId, reconnectToken);
             SeshStateWrapper state = seshService.joinAsHost(seshCode, socketId, reconnectToken);
             StompMessage reply = messageFactory.getMessage(state);
             log.info("StompControllerImpl: Exiting joinSesh(reconectToken={}, reply={})", reconnectToken, reply);

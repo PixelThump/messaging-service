@@ -6,10 +6,12 @@ import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
 import com.pixelthump.messagingservice.service.model.message.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +49,11 @@ class SeshControllerTest {
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId, null);
+        StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
+        when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
+        when(accessor.getHeader("reconnectToken")).thenReturn(null);
+
+        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, accessor);
 
         assertEquals(expected, result);
     }
@@ -61,7 +67,11 @@ class SeshControllerTest {
         StompMessage expected = new StateStompMessage(state);
         when(factoryMock.getMessage(any())).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, socketId, null);
+        StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
+        when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
+        when(accessor.getHeader("reconnectToken")).thenReturn(null);
+
+        StompMessage result = seshStompcontroller.joinSeshAsHost(seshCode, accessor);
 
         assertEquals(expected, result);
     }
@@ -75,7 +85,12 @@ class SeshControllerTest {
         ErrorStompMessage expected = new ErrorStompMessage(exception.getMessage());
         when(factoryMock.getMessage(exception)).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId, null);
+        StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
+        when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
+        when(accessor.getHeader("reconnectToken")).thenReturn(null);
+        when(accessor.getHeader("playerName")).thenReturn(playerName);
+
+        StompMessage result = seshStompcontroller.joinSeshAsController(seshCode, accessor);
 
         assertEquals(expected, result);
     }
@@ -89,7 +104,12 @@ class SeshControllerTest {
         StompMessage expected = new StateStompMessage(state);
         when(factoryMock.getMessage(any())).thenReturn(expected);
 
-        StompMessage result = seshStompcontroller.joinSeshAsController(playerName, seshCode, socketId, null);
+        StompHeaderAccessor accessor = Mockito.mock(StompHeaderAccessor.class);
+        when(accessor.getHeader("simpSessionId")).thenReturn(socketId);
+        when(accessor.getHeader("reconnectToken")).thenReturn(null);
+        when(accessor.getHeader("playerName")).thenReturn(playerName);
+
+        StompMessage result = seshStompcontroller.joinSeshAsController(seshCode, accessor);
 
         assertEquals(expected, result);
     }
