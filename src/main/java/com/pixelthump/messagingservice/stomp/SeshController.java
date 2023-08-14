@@ -40,6 +40,7 @@ public class SeshController {
 
         try {
             final String playerName = (String) headerAccessor.getHeader("playerName");
+            log.warn(headerAccessor);
             final String socketId = (String) headerAccessor.getHeader("simpSessionId");
             final String reconnectToken = (String) headerAccessor.getHeader("reconnectToken");
             log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}, reconectToken={}", playerName, seshCode, socketId, reconnectToken);
