@@ -43,25 +43,45 @@ public class SeshServiceImpl implements SeshService {
     }
 
     @Override
-    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId) {
+    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId, string reconnectToken) {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player(playerName, socketId);
-        return joinSesh(seshInfo, player, "controller");
+        if (reconnectToken == null){
+            state = joinSesh(seshInfo, player, "controller");
+        }else{
+            state = reJoinSesh(seshInfo, player, "controller", reconnectToken);
+        }
     }
 
     @Override
-    public SeshStateWrapper joinAsHost(String seshCode, String socketId) {
-
+    public SeshStateWrapper joinAsHost(String seshCode, String socketId, string reconnectToken) {
+        
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player("host", socketId);
-        return joinSesh(seshInfo, player, "host");
+        SeshStateWrapper state;
+        if (reconnectToken == null){
+            state = joinSesh(seshInfo, player, "host");
+        }else{
+            state = reJoinSesh(seshInfo, player, "host", reconnectToken);
+        }
     }
 
     private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role) {
 
         try {
             String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role;
+            ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshStateWrapper.class);
+            return responseEntity.getBody();
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
+        }
+    }
+
+        private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role, String reconnectToken) {
+
+        try {
+            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role + "?reconnectToken=" + reconnectToken;
             ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshStateWrapper.class);
             return responseEntity.getBody();
         } catch (RestClientException e) {
