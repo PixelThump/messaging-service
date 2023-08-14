@@ -47,6 +47,7 @@ public class SeshServiceImpl implements SeshService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         Player player = new Player(playerName, socketId);
+        SeshStateWrapper state;
         if (reconnectToken == null){
             state = joinSesh(seshInfo, player, "controller");
         }else{
@@ -78,7 +79,7 @@ public class SeshServiceImpl implements SeshService {
         }
     }
 
-        private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role, String reconnectToken) {
+        private SeshStateWrapper reJoinSesh(SeshInfo seshInfo, Player player, String role, String reconnectToken) {
 
         try {
             String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role + "?reconnectToken=" + reconnectToken;
