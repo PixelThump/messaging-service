@@ -35,13 +35,13 @@ public class SeshController {
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/controller")
-    public StompMessage joinSeshAsController(@Header final String playerName, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
+    public StompMessage joinSeshAsController(@Header final String playerName, @DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId, final @Header String reconnectToken) {
 
-        log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}", playerName, seshCode, socketId);
+        log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}, reconectToken={}", playerName, seshCode, socketId, reconnectToken);
         try {
-            SeshStateWrapper state = seshService.joinAsController(seshCode, playerName, socketId);
+            SeshStateWrapper state = seshService.joinAsController(seshCode, playerName, socketId, reconnectToken);
             StompMessage reply = messageFactory.getMessage(state);
-            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reply={}", playerName, seshCode, socketId, reply);
+            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reconectToken={}, reply={}", playerName, seshCode, socketId, reconnectToken reply);
             return reply;
         } catch (Exception e) {
 
@@ -53,13 +53,13 @@ public class SeshController {
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/host")
-    public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId) {
+    public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final @Header("simpSessionId") String socketId, final @Header String reconnectToken) {
 
-        log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={})", seshCode, socketId);
+        log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={}, reconectToken={})", seshCode, socketId, reconnectToken);
         try {
             SeshStateWrapper state = seshService.joinAsHost(seshCode, socketId);
             StompMessage reply = messageFactory.getMessage(state);
-            log.info("StompControllerImpl: Exiting joinSesh(reply={})", reply);
+            log.info("StompControllerImpl: Exiting joinSesh(reconectToken={}, reply={})", reconnectToken, reply);
 
             return reply;
         } catch (Exception e) {
