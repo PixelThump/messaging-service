@@ -35,4 +35,19 @@ class SeshServiceImplTest {
         seshService.joinAsController("abcd", "abcd", "abcd", null);
         verify(restTemplate, times(1)).getForEntity("https://pixelthump.win/api/seshservice/seshs/abcd", SeshInfo.class);
     }
+
+        @Test
+    void joinSeshAsController_reconnect_shouldCallRestTemplate() {
+
+        SeshInfo actualSeshinfo = new SeshInfo();
+        actualSeshinfo.setSeshCode("abcd");
+        actualSeshinfo.setSeshType("quizxel");
+        ResponseEntity<SeshInfo> seshinfo = new ResponseEntity<>(actualSeshinfo, HttpStatusCode.valueOf(200));
+        when(restTemplate.getForEntity("https://pixelthump.win/api/seshservice/seshs/abcd", SeshInfo.class)).thenReturn(seshinfo);
+
+        ResponseEntity<SeshStateWrapper> responseEntity = new ResponseEntity<>(new SeshStateWrapper(), HttpStatusCode.valueOf(200));
+        when(restTemplate.postForEntity("https://pixelthump.win/api/quizxel/seshs/abcd/players/controller?reconnectToken=abcd", new Player("abcd", "abcd"), SeshStateWrapper.class)).thenReturn(responseEntity);
+        seshService.joinAsController("abcd", "abcd", "abcd", "abcd");
+        verify(restTemplate, times(1)).getForEntity("https://pixelthump.win/api/seshservice/seshs/abcd", SeshInfo.class);
+    }
 }
