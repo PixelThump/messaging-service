@@ -32,7 +32,7 @@ class SeshServiceImplTest {
 
         ResponseEntity<SeshStateWrapper> responseEntity = new ResponseEntity<>(new SeshStateWrapper(), HttpStatusCode.valueOf(200));
         when(restTemplate.postForEntity("https://pixelthump.win/api/quizxel/seshs/abcd/players/controller", new Player("abcd", "abcd"), SeshStateWrapper.class)).thenReturn(responseEntity);
-        seshService.joinAsController("abcd", "abcd", "abcd");
+        seshService.joinAsController("abcd", "abcd", "abcd", null);
         verify(restTemplate, times(1)).getForEntity("https://pixelthump.win/api/seshservice/seshs/abcd", SeshInfo.class);
     }
 }
