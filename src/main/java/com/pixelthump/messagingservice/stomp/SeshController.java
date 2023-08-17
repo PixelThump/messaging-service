@@ -1,15 +1,11 @@
 package com.pixelthump.messagingservice.stomp;
-import com.pixelthump.messagingservice.rest.model.MessagingSeshUpdate;
-import com.pixelthump.messagingservice.service.BroadcastService;
-import com.pixelthump.messagingservice.service.SeshService;
 import com.pixelthump.messagingservice.service.StompMessageFactory;
+import com.pixelthump.messagingservice.service.StompService;
 import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
-import com.pixelthump.messagingservice.service.model.SeshUpdate;
 import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
 import com.pixelthump.messagingservice.service.model.message.StompMessage;
 import com.pixelthump.messagingservice.stomp.model.StompHeaders;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
@@ -24,37 +20,31 @@ import java.util.List;
 @Log4j2
 public class SeshController {
 
-    private final SeshService seshService;
+    private final StompService stompService;
     private final StompMessageFactory messageFactory;
-    private final ModelMapper modelMapper;
-    private final BroadcastService broadcastService;
 
     @Autowired
-    public SeshController(SeshService seshService, StompMessageFactory messageFactory, ModelMapper modelMapper, BroadcastService broadcastService) {
+    public SeshController(StompService stompService, StompMessageFactory messageFactory) {
 
-        this.seshService = seshService;
+        this.stompService = stompService;
         this.messageFactory = messageFactory;
-        this.modelMapper = modelMapper;
-        this.broadcastService = broadcastService;
     }
 
-    @SubscribeMapping("/topic/sesh/{seshCode}/controller")
-    public StompMessage joinSeshAsController(@DestinationVariable final String seshCode, final StompHeaderAccessor headerAccessor) {
+    @SubscribeMapping("/topic/sesh/{seshCode}/controller/{playerName}")
+    public StompMessage joinSeshAsControllerWithPlayernameInTopic(@DestinationVariable final String seshCode, @DestinationVariable final String playerName, final StompHeaderAccessor headerAccessor) {
 
         try {
             StompHeaders stompHeaders = getStompHeaders(headerAccessor);
-            log.info("Started joinSeshAsController with playerName={} seshCode={}, socketId={}, reconectToken={}", stompHeaders.getPlayerName(), seshCode, stompHeaders.getSocketId(), stompHeaders.getReconnectToken());
-            SeshStateWrapper state = seshService.joinAsController(seshCode, stompHeaders.getPlayerName(), stompHeaders.getSocketId(), stompHeaders.getReconnectToken());
+            log.info("Started joinSeshAsControllerWithPlayernameInTopic with playerName={} seshCode={}, reconnectToken={}", playerName, seshCode,  stompHeaders.getReconnectToken());
+            SeshStateWrapper state = stompService.joinAsController(seshCode, playerName,  stompHeaders.getReconnectToken());
             StompMessage reply = messageFactory.getMessage(state);
-            log.info("Finished joinSeshAsController with playerName={}, seshCode={}, socketId={}, reconectToken={}, reply={}", stompHeaders.getPlayerName(), seshCode, stompHeaders.getSocketId(), stompHeaders.getReconnectToken(), reply);
+            log.info("Finished joinSeshAsControllerWithPlayernameInTopic with playerName={}, seshCode={}, reconnectToken={}, reply={}", playerName, seshCode, stompHeaders.getReconnectToken(), reply);
             return reply;
         } catch (Exception e) {
-
             StompMessage reply = messageFactory.getMessage(e);
-            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            log.error("StompControllerImpl: Exiting joinSeshAsControllerWithPlayernameInTopic(reply={})", reply);
             return reply;
         }
-
     }
 
     @SubscribeMapping("/topic/sesh/{seshCode}/host")
@@ -62,8 +52,8 @@ public class SeshController {
 
         try {
             StompHeaders stompHeaders = getStompHeaders(headerAccessor);
-            log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, socketId={}, reconnectToken={}", seshCode, stompHeaders.getSocketId(), stompHeaders.getReconnectToken());
-            SeshStateWrapper state = seshService.joinAsHost(seshCode, stompHeaders.getSocketId(), stompHeaders.getReconnectToken());
+            log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, reconnectToken={}", seshCode, stompHeaders.getReconnectToken());
+            SeshStateWrapper state = stompService.joinAsHost(seshCode, stompHeaders.getReconnectToken());
             StompMessage reply = messageFactory.getMessage(state);
             log.info("StompControllerImpl: Exiting joinSesh(reconectToken={}, reply={})", stompHeaders.getReconnectToken(), reply);
 
@@ -87,14 +77,6 @@ public class SeshController {
             headers.setReconnectToken(reconnectTokenList.get(0));
         }
 
-        headers.setSocketId((String) headerAccessor.getHeader("simpSessionId"));
-        List<String> playerNameList = headerAccessor.getNativeHeader("playerName");
-        if (playerNameList == null || playerNameList.isEmpty()) {
-            headers.setPlayerName(null);
-        } else {
-            headers.setPlayerName(playerNameList.get(0));
-        }
-
         return headers;
     }
 
@@ -104,28 +86,11 @@ public class SeshController {
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
             message.getCommand().setPlayerId(socketId);
-            this.seshService.sendCommandToSesh(message.getCommand(), seshCode);
+            this.stompService.sendCommandToSesh(message.getCommand(), seshCode);
             StompMessage reply = messageFactory.getAckMessage();
             log.info("Exiting sendCommandToSesh with reply={}", reply);
 
             return reply;
-        } catch (Exception e) {
-
-            StompMessage reply = messageFactory.getMessage(e);
-            log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
-            return reply;
-        }
-    }
-
-    @MessageMapping("/topic/seshs/{seshCode}/broadcasts/state")
-    public StompMessage broadcastState(final MessagingSeshUpdate messagingSeshUpdate, @DestinationVariable final String seshCode) {
-
-        try {
-            log.info("Started broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
-            SeshUpdate seshUpdate = modelMapper.map(messagingSeshUpdate, SeshUpdate.class);
-            broadcastService.broadcastToSesh(seshCode, seshUpdate);
-            log.info("Finished broadcastToSesh with seshCode={}, MessagingSeshUpdate={}", seshCode, messagingSeshUpdate);
-            return messageFactory.getAckMessage();
         } catch (Exception e) {
 
             StompMessage reply = messageFactory.getMessage(e);

@@ -1,10 +1,14 @@
 package com.pixelthump.messagingservice.service;
-import com.pixelthump.messagingservice.service.model.SeshUpdate;
-import com.pixelthump.messagingservice.service.model.message.StompMessage;
+import com.pixelthump.messagingservice.repository.PlayerRepository;
+import com.pixelthump.messagingservice.repository.model.Player;
+import com.pixelthump.messagingservice.repository.model.Role;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Log4j2
@@ -12,62 +16,53 @@ public class BroadcastServiceImpl implements BroadcastService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private static final String SESH_BASE_PATH = "/topic/sesh/";
-    private static final String ERROR_MESSAGE_LINE_2 = "No message type available in message factory for type {}";
-    private static final String ERROR_MESSAGE_LINE_1 = "Could not broadcast message with payload {}";
-    private final StompMessageFactory factory;
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    public BroadcastServiceImpl(SimpMessagingTemplate messagingTemplate, StompMessageFactory factory) {
+    public BroadcastServiceImpl(SimpMessagingTemplate messagingTemplate, PlayerRepository playerRepository) {
 
         this.messagingTemplate = messagingTemplate;
-        this.factory = factory;
+        this.playerRepository = playerRepository;
     }
 
     @Override
-    public void broadcastToSesh(String seshCode, SeshUpdate seshUpdate) {
+    public void broadcastToListOfPlayers(String seshCode, List<String> recipients, Object payload) {
 
-        broadcastSeshUpdateToControllers(seshCode, seshUpdate.getController());
-        broadcastSeshUpdateToHost(seshCode, seshUpdate.getHost());
+        List<Player> players = playerRepository.findByPlayerId_SeshCode(seshCode);
+        players.parallelStream().filter(player -> recipients.contains(player.getPlayerId().getPlayerName())).forEach(player -> broadcastToPlayer(player, payload));
     }
 
-    private void broadcastSeshUpdateToControllers(String seshCode, Object payload) {
+    @Override
+    public void broadcastToDifferentPlayers(String seshCode, Map<String, Object> playerNameToPayload) {
 
-        final String destination = SESH_BASE_PATH + seshCode + "/controller";
-
-        try {
-
-            final StompMessage message = factory.getMessage(payload);
-            broadcast(destination, message);
-
-        } catch (UnsupportedOperationException e) {
-
-            log.error(ERROR_MESSAGE_LINE_1, payload);
-            log.error(ERROR_MESSAGE_LINE_2, payload.getClass());
-
-            throw e;
-        }
+        List<Player> players = playerRepository.findByPlayerId_SeshCode(seshCode);
+        players.parallelStream().filter(player -> playerNameToPayload.containsKey(player.getPlayerId().getPlayerName())).forEach(player -> broadcastToPlayer(player, playerNameToPayload.get(player.getPlayerId().getPlayerName())));
     }
 
-    private void broadcastSeshUpdateToHost(String seshcode, Object payload) {
+    @Override
+    public void broadcastToSinglePlayer(String seshCode, String playerName, Object payload) {
 
-        final String destination = SESH_BASE_PATH + seshcode + "/host";
-
-        try {
-
-            final StompMessage message = factory.getMessage(payload);
-            broadcast(destination, message);
-
-        } catch (UnsupportedOperationException e) {
-
-            log.error(ERROR_MESSAGE_LINE_1, payload);
-            log.error(ERROR_MESSAGE_LINE_2, payload.getClass());
-
-            throw e;
-        }
+        Player player = playerRepository.findByPlayerId_SeshCodeAndPlayerId_PlayerName(seshCode, playerName);
+        broadcastToPlayer(player, payload);
     }
 
-    private void broadcast(final String destination, final StompMessage message) {
+    @Override
+    public void broadcastToAllPlayers(String seshCode, Object payload) {
 
-        this.messagingTemplate.convertAndSend(destination, message);
+        List<Player> players = playerRepository.findByPlayerId_SeshCode(seshCode);
+        players.parallelStream().forEach(player -> broadcastToPlayer(player, payload));
+    }
+
+    @Override
+    public void broadcastToRole(String seshCode, Role role, Object payload) {
+
+        List<Player> players = playerRepository.findByPlayerId_SeshCodeAndRole(seshCode, role);
+        players.parallelStream().forEach(player -> broadcastToPlayer(player, payload));
+    }
+
+    private void broadcastToPlayer(Player player, Object payload) {
+
+        String destination = SESH_BASE_PATH + player.getPlayerId().getSeshCode() + "/" + player.getPlayerId().getPlayerName();
+        messagingTemplate.convertAndSend(destination, payload);
     }
 }

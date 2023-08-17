@@ -1,68 +1,73 @@
 package com.pixelthump.messagingservice.service;
 import com.pixelthump.messagingservice.Application;
-import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
-import com.pixelthump.messagingservice.service.model.SeshUpdate;
-import com.pixelthump.messagingservice.service.model.message.GenericStompMessage;
-import com.pixelthump.messagingservice.service.model.message.StompMessage;
-import org.junit.jupiter.api.BeforeEach;
+import com.pixelthump.messagingservice.repository.PlayerRepository;
+import com.pixelthump.messagingservice.repository.model.Player;
+import com.pixelthump.messagingservice.repository.model.PlayerId;
+import com.pixelthump.messagingservice.repository.model.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = Application.class)
 class BroadcastServiceImplTest {
 
-    @MockBean
-    StompMessageFactory factory;
+    @Autowired
+    BroadcastService broadcastService;
     @MockBean
     SimpMessagingTemplate messagingTemplate;
-    @Autowired
-    BroadcastService messageBroadcaster;
-    String sessionCode;
+    @MockBean
+    PlayerRepository playerRepository;
+    @MockBean
+    StompMessageFactory factory;
+    private static final String SESH_BASE_PATH = "/topic/sesh/";
 
+    @Test
+    void broadcastToListOfPlayers() {
 
-    @BeforeEach
-    void setUp() {
-        sessionCode = "abcd";
+        List<Player> players = new ArrayList<>();
+        Player player1 = new Player(Role.CONTROLLER, new PlayerId("abcd", "efgh"), "reconnectToo", false);
+        Player player2 = new Player(Role.CONTROLLER, new PlayerId("abcd", "abcd"), "reconnect", false);
+        players.add(player1);
+        players.add(player2);
+        when(playerRepository.findByPlayerId_SeshCode(any())).thenReturn(players);
+
+        List<String> recipients = new ArrayList<>();
+        recipients.add(player1.getPlayerId().getPlayerName());
+        recipients.add(player2.getPlayerId().getPlayerName());
+
+        String payload = "payload";
+        broadcastService.broadcastToListOfPlayers("abcd", recipients, payload);
+
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + player1.getPlayerId().getSeshCode() + "/" + player1.getPlayerId().getPlayerName(), payload);
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + player2.getPlayerId().getSeshCode() + "/" + player2.getPlayerId().getPlayerName(), payload);
     }
 
     @Test
-    void broadcastSeshUpdateToControllers_supportedPayload_shouldCallConvertAndSendWithCorrectDestination() {
+    void broadcastToDifferentPlayers() {
 
-        StompMessage stompMessage = new GenericStompMessage();
-        when(factory.getMessage(any())).thenReturn(stompMessage);
-        SeshUpdate seshUpdate = new SeshUpdate();
-        messageBroadcaster.broadcastToSesh(sessionCode, seshUpdate);
-        verify(messagingTemplate).convertAndSend("/topic/sesh/" + sessionCode + "/controller", stompMessage);
-        verify(messagingTemplate).convertAndSend("/topic/sesh/" + sessionCode + "/host", stompMessage);
     }
 
     @Test
-    void broadcastSeshUpdateToControllers_WITH_NON_SUPPORTED_PAYLOAD_SHOULD_THROW_EXCEPTION() {
+    void broadcastToSinglePlayer() {
 
-        SeshUpdate seshUpdate = new SeshUpdate();
-        seshUpdate.setController(new SeshStateWrapper());
-        seshUpdate.setHost(new SeshStateWrapper());
-        StompMessage stompMessage = new GenericStompMessage();
-        when(factory.getMessage(any())).thenReturn(stompMessage).thenThrow(new UnsupportedOperationException());
-        assertThrows(UnsupportedOperationException.class, () -> messageBroadcaster.broadcastToSesh(sessionCode, seshUpdate));
-        verify(factory, times(2)).getMessage(any());
     }
-    @Test
-    void broadcastSeshUpdateToControllers_WITH_NON_SUPPORTED_PAYLOAD_SHOULD_THROW_EXCEPTION_FIRST() {
 
-        SeshUpdate seshUpdate = new SeshUpdate();
-        seshUpdate.setController(new SeshStateWrapper());
-        seshUpdate.setHost(new SeshStateWrapper());
-        StompMessage stompMessage = new GenericStompMessage();
-        when(factory.getMessage(any())).thenThrow(new UnsupportedOperationException());
-        assertThrows(UnsupportedOperationException.class, () -> messageBroadcaster.broadcastToSesh(sessionCode, seshUpdate));
-        verify(factory, times(1)).getMessage(any());
+    @Test
+    void broadcastToAllPlayers() {
+
+    }
+
+    @Test
+    void broadcastToRole() {
+
     }
 }

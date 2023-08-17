@@ -5,6 +5,4 @@ import lombok.Data;
 public class StompHeaders {
 
     private String reconnectToken;
-    private String socketId;
-    private String playerName;
 }
