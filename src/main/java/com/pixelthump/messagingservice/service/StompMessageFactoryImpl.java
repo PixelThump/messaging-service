@@ -54,6 +54,12 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
         return new GenericStompMessage();
     }
 
+    @Override
+    public StompMessage getGenericMessage(Object payload) {
+
+        return new GenericStompMessage(payload);
+    }
+
     private ErrorStompMessage getMessage(RuntimeException exception) {
 
         final ErrorStompMessage message = new ErrorStompMessage();

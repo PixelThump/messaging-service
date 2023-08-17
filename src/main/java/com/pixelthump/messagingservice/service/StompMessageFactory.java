@@ -6,4 +6,6 @@ public interface StompMessageFactory {
     StompMessage getMessage(Object payload) throws UnsupportedOperationException;
 
     StompMessage getAckMessage();
+
+    StompMessage getGenericMessage(Object payload);
 }

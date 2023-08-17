@@ -1,116 +1,22 @@
 package com.pixelthump.messagingservice.service;
-import com.pixelthump.messagingservice.service.model.Player;
-import com.pixelthump.messagingservice.service.model.SeshInfo;
-import com.pixelthump.messagingservice.service.model.SeshStateWrapper;
-import com.pixelthump.messagingservice.service.model.message.Command;
-import com.pixelthump.messagingservice.service.model.message.CommandStompMessage;
+import com.pixelthump.messagingservice.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
-@Component
+@Service
 public class SeshServiceImpl implements SeshService {
 
-    private final RestTemplate restTemplate;
-    @Value("${pixelthump.backend-basepath}")
-    private String backendBasePath;
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    public SeshServiceImpl(RestTemplate restTemplate) {
+    public SeshServiceImpl(PlayerRepository playerRepository) {
 
-        this.restTemplate = restTemplate;
-    }
-
-    private Optional<SeshInfo> getSeshInfo(String seshCode) {
-
-        ResponseEntity<SeshInfo> responseEntity;
-        try {
-            String apiUrl = backendBasePath + "/seshservice/seshs/" + seshCode;
-            responseEntity = restTemplate.getForEntity(apiUrl, SeshInfo.class);
-
-        } catch (RestClientException e) {
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
-        }
-
-        return Optional.ofNullable(responseEntity.getBody());
+        this.playerRepository = playerRepository;
     }
 
     @Override
-    public SeshStateWrapper joinAsController(String seshCode, String playerName, String socketId, String reconnectToken) {
+    public void deleteSesh(String seshCode) {
 
-        SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
-        Player player = new Player(playerName, socketId);
-        SeshStateWrapper state;
-        if (reconnectToken == null){
-            state = joinSesh(seshInfo, player, "controller");
-        }else{
-            state = reJoinSesh(seshInfo, player, "controller", reconnectToken);
-        }
-        return state;
-    }
-
-    @Override
-    public SeshStateWrapper joinAsHost(String seshCode, String socketId, String reconnectToken) {
-        
-        SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
-        Player player = new Player("host", socketId);
-        SeshStateWrapper state;
-        if (reconnectToken == null){
-            state = joinSesh(seshInfo, player, "host");
-        }else{
-            state = reJoinSesh(seshInfo, player, "host", reconnectToken);
-        }
-        return state;
-    }
-
-    private SeshStateWrapper joinSesh(SeshInfo seshInfo, Player player, String role) {
-
-        try {
-            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role;
-            ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshStateWrapper.class);
-            return responseEntity.getBody();
-        } catch (RestClientException e) {
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
-        }
-    }
-
-        private SeshStateWrapper reJoinSesh(SeshInfo seshInfo, Player player, String role, String reconnectToken) {
-
-        try {
-            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role + "?reconnectToken=" + reconnectToken;
-            ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.postForEntity(apiUrl, player, SeshStateWrapper.class);
-            return responseEntity.getBody();
-        } catch (RestClientException e) {
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
-        }
-    }
-
-    @Override
-    public void sendCommandToSesh(Command message, String seshCode) {
-
-        try {
-
-            SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
-            String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/commands";
-            restTemplate.postForEntity(apiUrl, message, String.class);
-        } catch (RestClientException e) {
-            throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
-        }
-    }
-
-    private SeshInfo checkSeshInfoPresent(Optional<SeshInfo> seshInfoOptional){
-
-        if (seshInfoOptional.isEmpty()){
-
-            throw new RuntimeException();
-        }
-        return seshInfoOptional.get();
+        playerRepository.deleteByPlayerId_SeshCode(seshCode);
     }
 }
