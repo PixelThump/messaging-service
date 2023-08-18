@@ -42,6 +42,7 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
 
         final StateStompMessage message = new StateStompMessage();
         message.setState(seshState.getState());
+        message.setReconnectToken(seshState.getReconnectToken());
         return message;
     }
 
