@@ -25,10 +25,7 @@ public class StompMessageFactoryImpl implements StompMessageFactory {
             message = getMessage(state);
         } else {
 
-            String errorMessage = "Could not create StompMessage. Unsupported payload type";
-            log.error(errorMessage);
-            log.error("payload={}", payload);
-            throw new UnsupportedOperationException(errorMessage);
+            message = getGenericMessage(payload);
         }
 
         return message;
