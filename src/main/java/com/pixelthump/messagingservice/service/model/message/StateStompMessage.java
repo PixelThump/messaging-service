@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class StateStompMessage implements StompMessage {
 
     Object state;
+    String reconnectToken;
 }

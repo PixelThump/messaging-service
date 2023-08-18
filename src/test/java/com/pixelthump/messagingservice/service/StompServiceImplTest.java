@@ -17,8 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = Application.class)
@@ -41,10 +40,9 @@ class StompServiceImplTest {
 
         mockGetSeshInfo();
 
-        SeshStateWrapper seshStatewrapper = new SeshStateWrapper("", "reconnect");
-        ResponseEntity<SeshStateWrapper> seshStateWrapperResponseEntity = new ResponseEntity<>(seshStatewrapper, HttpStatusCode.valueOf(200));
+        ResponseEntity<Object> seshStateWrapperResponseEntity = new ResponseEntity<>("state", HttpStatusCode.valueOf(200));
         String quizxelApiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + Role.CONTROLLER.name().toLowerCase();
-        when(restTemplate.postForEntity(eq(quizxelApiUrl), any(), eq(SeshStateWrapper.class))).thenReturn(seshStateWrapperResponseEntity);
+        when(restTemplate.postForEntity(eq(quizxelApiUrl), any(), eq(Object.class))).thenReturn(seshStateWrapperResponseEntity);
 
         String playerName = "playerName";
         Player player = new Player(Role.CONTROLLER, new PlayerId(seshCode, playerName), "reconnect", false);
@@ -52,10 +50,13 @@ class StompServiceImplTest {
 
         SeshStateWrapper result = stompService.joinAsController(seshCode, playerName, null);
 
-        assertEquals(seshStatewrapper, result);
+
+        SeshStateWrapper expected = new SeshStateWrapper("state", "reconnect");
+        assertEquals(expected.getState(), result.getState());
+        assertFalse(result.getReconnectToken().isEmpty());
 
         verify(restTemplate).getForEntity(seshInfoUrl, SeshInfo.class);
-        verify(restTemplate).postForEntity(eq(quizxelApiUrl), any(), eq(SeshStateWrapper.class));
+        verify(restTemplate).postForEntity(eq(quizxelApiUrl), any(), eq(Object.class));
         verify(playerRepository).save(any());
     }
 
@@ -103,17 +104,19 @@ class StompServiceImplTest {
 
         mockGetSeshInfo();
 
-        SeshStateWrapper seshStatewrapper = new SeshStateWrapper("", "reconnect");
-        ResponseEntity<SeshStateWrapper> seshStateWrapperResponseEntity = new ResponseEntity<>(seshStatewrapper, HttpStatusCode.valueOf(200));
+
+        ResponseEntity<Object> seshStateWrapperResponseEntity = new ResponseEntity<>("state", HttpStatusCode.valueOf(200));
         String quizxelApiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + Role.HOST.name().toLowerCase();
-        when(restTemplate.postForEntity(eq(quizxelApiUrl), any(), eq(SeshStateWrapper.class))).thenReturn(seshStateWrapperResponseEntity);
+        when(restTemplate.postForEntity(eq(quizxelApiUrl), any(), eq(Object.class))).thenReturn(seshStateWrapperResponseEntity);
 
         SeshStateWrapper result = stompService.joinAsHost(seshCode, null);
 
-        assertEquals(seshStatewrapper, result);
+        SeshStateWrapper expected = new SeshStateWrapper("state", "reconnect");
+        assertEquals(expected.getState(), result.getState());
+        assertFalse(result.getReconnectToken().isEmpty());
 
         verify(restTemplate).getForEntity(seshInfoUrl, SeshInfo.class);
-        verify(restTemplate).postForEntity(eq(quizxelApiUrl), any(), eq(SeshStateWrapper.class));
+        verify(restTemplate).postForEntity(eq(quizxelApiUrl), any(), eq(Object.class));
         verify(playerRepository).save(any());
     }
 
