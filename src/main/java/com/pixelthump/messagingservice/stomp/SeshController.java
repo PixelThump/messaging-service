@@ -54,7 +54,7 @@ public class SeshController {
             log.info("StompControllerImpl: Entering joinSeshAsHost(seshCode={}, reconnectToken={}", seshCode, reconnectToken);
             SeshStateWrapper state = stompService.joinAsHost(seshCode, reconnectToken);
             StompMessage reply = messageFactory.getMessage(state);
-            log.info("StompControllerImpl: Exiting joinSesh(reconectToken={}, reply={})", reconnectToken, reply);
+            log.info("StompControllerImpl: Exiting joinSeshAsHost(reconectToken={}, reply={})", reconnectToken, reply);
 
             return reply;
         } catch (Exception e) {
