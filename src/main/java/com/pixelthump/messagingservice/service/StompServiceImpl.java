@@ -57,7 +57,7 @@ public class StompServiceImpl implements StompService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
-        if (reconnectToken == null) {
+        if (reconnectToken == null || reconnectToken.equals("null")) {
             state = joinSesh(seshInfo, playerName, Role.CONTROLLER);
         } else {
             state = reJoinSesh(seshInfo, playerName, reconnectToken);
@@ -71,27 +71,27 @@ public class StompServiceImpl implements StompService {
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
         if (reconnectToken == null) {
-            state = joinSesh(seshInfo, "host", Role.HOST);
+            state = joinSesh(seshInfo, "null", Role.HOST);
         } else {
-            state = reJoinSesh(seshInfo, "host", reconnectToken);
+            state = reJoinSesh(seshInfo, "null", reconnectToken);
         }
         return state;
     }
 
     private SeshStateWrapper joinSesh(SeshInfo seshInfo, String playerName, Role role) {
 
-        ResponseEntity<SeshStateWrapper> responseEntity;
+        ResponseEntity<Object> responseEntity;
+        PlayerId playerId = new PlayerId(seshInfo.getSeshCode(), playerName);
+        Player player = new Player(role, playerId, generateReconnectToken(), false);
         try {
             String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + role.name().toLowerCase();
-            responseEntity = restTemplate.postForEntity(apiUrl, playerName, SeshStateWrapper.class);
+            responseEntity = restTemplate.postForEntity(apiUrl, player, Object.class);
 
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
         }
-        PlayerId playerId = new PlayerId(seshInfo.getSeshCode(), playerName);
-        Player player = new Player(role, playerId, generateReconnectToken(), false);
         playerRepository.save(player);
-        return responseEntity.getBody();
+        return new SeshStateWrapper(responseEntity.getBody(), player.getReconnectToken());
     }
 
     private String generateReconnectToken() {
