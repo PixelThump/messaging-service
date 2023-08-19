@@ -52,6 +52,12 @@ public class StompServiceImpl implements StompService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
+
+        if (playerName.equals("host")){
+
+            throw new ResponseStatusException(HttpStatusCode.valueOf(409));
+        }
+
         if (reconnectToken == null || reconnectToken.equals("null")) {
             state = joinSesh(seshInfo, playerName, Role.CONTROLLER);
         } else {
@@ -66,9 +72,9 @@ public class StompServiceImpl implements StompService {
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
         if (reconnectToken == null) {
-            state = joinSesh(seshInfo, null, Role.HOST);
+            state = joinSesh(seshInfo, "host", Role.HOST);
         } else {
-            state = reJoinSesh(seshInfo, null, reconnectToken);
+            state = reJoinSesh(seshInfo, "host", reconnectToken);
         }
         return state;
     }

@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @Log4j2
@@ -29,24 +30,7 @@ public class SeshController {
         this.messageFactory = messageFactory;
     }
 
-    @SubscribeMapping("/topic/sesh/{seshCode}/controller/{playerName}")
-    public StompMessage joinSeshAsControllerWithPlayernameInTopic(@DestinationVariable final String seshCode, @DestinationVariable final String playerName, final StompHeaderAccessor headerAccessor) {
-
-        try {
-            String reconnectToken = getReconnectToken(headerAccessor);
-            log.info("Started joinSeshAsControllerWithPlayernameInTopic with playerName={} seshCode={}, reconnectToken={}", playerName, seshCode, reconnectToken);
-            SeshStateWrapper state = stompService.joinAsController(seshCode, playerName, reconnectToken);
-            StompMessage reply = messageFactory.getMessage(state);
-            log.info("Finished joinSeshAsControllerWithPlayernameInTopic with playerName={}, seshCode={}, reconnectToken={}, reply={}", playerName, seshCode, reconnectToken, reply);
-            return reply;
-        } catch (Exception e) {
-            StompMessage reply = messageFactory.getMessage(e);
-            log.error("StompControllerImpl: Exiting joinSeshAsControllerWithPlayernameInTopic(reply={})", reply);
-            return reply;
-        }
-    }
-
-    @SubscribeMapping("/topic/sesh/{seshCode}/controller")
+    @SubscribeMapping("/topic/sesh/{seshCode}/host")
     public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final StompHeaderAccessor headerAccessor) {
 
         try {
@@ -61,6 +45,30 @@ public class SeshController {
 
             StompMessage reply = messageFactory.getMessage(e);
             log.error("StompControllerImpl: Exiting joinSeshAsHost(reply={})", reply);
+            return reply;
+        }
+    }
+
+    @SubscribeMapping("/topic/sesh/{seshCode}/controller/{playerName}")
+    public StompMessage joinSeshAsControllerWithPlayernameInTopic(@DestinationVariable final String seshCode, @DestinationVariable final String playerName, final StompHeaderAccessor headerAccessor) {
+
+        try {
+            String reconnectToken = getReconnectToken(headerAccessor);
+            log.info("Started joinSeshAsControllerWithPlayernameInTopic with playerName={} seshCode={}, reconnectToken={}", playerName, seshCode, reconnectToken);
+
+            SeshStateWrapper state;
+            if (Objects.equals(playerName, "host")) {
+                state = stompService.joinAsHost(seshCode, reconnectToken);
+            } else {
+                state = stompService.joinAsController(seshCode, playerName, reconnectToken);
+            }
+
+            StompMessage reply = messageFactory.getMessage(state);
+            log.info("Finished joinSeshAsControllerWithPlayernameInTopic with playerName={}, seshCode={}, reconnectToken={}, reply={}", playerName, seshCode, reconnectToken, reply);
+            return reply;
+        } catch (Exception e) {
+            StompMessage reply = messageFactory.getMessage(e);
+            log.error("StompControllerImpl: Exiting joinSeshAsControllerWithPlayernameInTopic(reply={})", reply);
             return reply;
         }
     }
@@ -81,7 +89,7 @@ public class SeshController {
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
             this.stompService.sendCommandToSesh(message.getCommand(), seshCode);
-            StompMessage  reply = messageFactory.getAckMessage();
+            StompMessage reply = messageFactory.getAckMessage();
             log.info("Exiting sendCommandToSesh with reply={}", reply);
 
             return reply;
