@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GenericStompMessage implements StompMessage {
 
-    private Object object;
+    private Object payload;
 }
