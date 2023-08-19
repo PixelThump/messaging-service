@@ -45,7 +45,7 @@ class BroadcastResourceTest {
         recipients.put("abcd", "efgh");
         recipients.put("1234", 5678);
 
-        broadcastResource.broadcastToDifferentPlayers(seshCode, new MessagingDifferentBroadcastRequest(recipients));
+        broadcastResource.broadcastToDifferentPlayers(seshCode, recipients);
 
         verify(broadcastService).broadcastToDifferentPlayers(seshCode,recipients);
     }

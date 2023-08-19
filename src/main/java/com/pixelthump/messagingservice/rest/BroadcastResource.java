@@ -1,6 +1,5 @@
 package com.pixelthump.messagingservice.rest;
 import com.pixelthump.messagingservice.repository.model.Role;
-import com.pixelthump.messagingservice.rest.model.MessagingDifferentBroadcastRequest;
 import com.pixelthump.messagingservice.rest.model.MessagingMultiBroadcastRequest;
 import com.pixelthump.messagingservice.rest.model.MessagingRoleBroadcastRequest;
 import com.pixelthump.messagingservice.rest.model.MessagingSinglePlayerBroadcastRequest;
@@ -8,6 +7,8 @@ import com.pixelthump.messagingservice.service.BroadcastService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/seshs/{seshCode}/broadcasts")
@@ -31,10 +32,10 @@ public class BroadcastResource {
     }
 
     @PostMapping("/different")
-    public void broadcastToDifferentPlayers(@PathVariable String seshCode, @RequestBody MessagingDifferentBroadcastRequest request) {
+    public void broadcastToDifferentPlayers(@PathVariable String seshCode, @RequestBody Map<String, Object> request) {
 
         log.info("Started broadcastToDifferentPlayers with seshCode={}, request={}", seshCode, request);
-        broadcastService.broadcastToDifferentPlayers(seshCode, request.playerNameToPayload());
+        broadcastService.broadcastToDifferentPlayers(seshCode, request);
         log.info("Finished broadcastToDifferentPlayers with seshCode={}, request={}", seshCode, request);
     }
 
