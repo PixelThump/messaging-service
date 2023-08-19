@@ -48,9 +48,9 @@ class BroadcastServiceImplTest {
 
         broadcastService.broadcastToListOfPlayers(seshCode, recipients, payload);
 
-        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(0).getPlayerId().getSeshCode() + "/" + players.get(0).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
-        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(1).getPlayerId().getSeshCode() + "/" + players.get(1).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
-        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(2).getPlayerId().getSeshCode() + "/" + players.get(2).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(0).getPlayerId().getSeshCode() + "/controller/" + players.get(0).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(1).getPlayerId().getSeshCode() + "/controller/" + players.get(1).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + players.get(2).getPlayerId().getSeshCode() + "/controller/" + players.get(2).getPlayerId().getPlayerName(), new GenericStompMessage(payload));
     }
 
     @Test
@@ -68,10 +68,10 @@ class BroadcastServiceImplTest {
 
         for (String recipientName : recipients.keySet()) {
 
-            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/" + recipientName, new GenericStompMessage(recipients.get(recipientName)));
+            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/controller/" + recipientName, new GenericStompMessage(recipients.get(recipientName)));
         }
 
-        verify(messagingTemplate, never()).convertAndSend(SESH_BASE_PATH + seshCode + "/" + players.get(2).getPlayerId().getPlayerName(), new GenericStompMessage(recipients.get(players.get(2).getPlayerId().getPlayerName())));
+        verify(messagingTemplate, never()).convertAndSend(SESH_BASE_PATH + seshCode + "/controller/" + players.get(2).getPlayerId().getPlayerName(), new GenericStompMessage(recipients.get(players.get(2).getPlayerId().getPlayerName())));
     }
 
     private List<Player> getPlayers() {
@@ -97,7 +97,7 @@ class BroadcastServiceImplTest {
         when(factory.getGenericMessage("payload")).thenReturn(new GenericStompMessage("payload"));
 
         broadcastService.broadcastToSinglePlayer(seshCode, playerName, "payload");
-        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/" + playerName, new GenericStompMessage("payload"));
+        verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/controller/" + playerName, new GenericStompMessage("payload"));
     }
 
     @Test
@@ -111,7 +111,7 @@ class BroadcastServiceImplTest {
 
         for (Player player : players) {
 
-            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/" + player.getPlayerId().getPlayerName(), new GenericStompMessage("payload"));
+            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/controller/" + player.getPlayerId().getPlayerName(), new GenericStompMessage("payload"));
         }
     }
 
@@ -126,7 +126,7 @@ class BroadcastServiceImplTest {
 
         for (Player player : players) {
 
-            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/" + player.getPlayerId().getPlayerName(), new GenericStompMessage("payload"));
+            verify(messagingTemplate).convertAndSend(SESH_BASE_PATH + seshCode + "/controller/" + player.getPlayerId().getPlayerName(), new GenericStompMessage("payload"));
         }
     }
 }

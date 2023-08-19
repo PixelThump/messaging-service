@@ -50,11 +50,6 @@ public class StompServiceImpl implements StompService {
     @Override
     public SeshStateWrapper joinAsController(String seshCode, String playerName, String reconnectToken) {
 
-        if (playerName.equals("host")){
-
-            throw new ResponseStatusException(HttpStatusCode.valueOf(500));
-        }
-
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
         if (reconnectToken == null || reconnectToken.equals("null")) {
@@ -71,9 +66,9 @@ public class StompServiceImpl implements StompService {
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
         if (reconnectToken == null) {
-            state = joinSesh(seshInfo, "null", Role.HOST);
+            state = joinSesh(seshInfo, null, Role.HOST);
         } else {
-            state = reJoinSesh(seshInfo, "null", reconnectToken);
+            state = reJoinSesh(seshInfo, null, reconnectToken);
         }
         return state;
     }

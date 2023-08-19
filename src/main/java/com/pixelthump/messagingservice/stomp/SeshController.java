@@ -46,7 +46,7 @@ public class SeshController {
         }
     }
 
-    @SubscribeMapping("/topic/sesh/{seshCode}/host")
+    @SubscribeMapping("/topic/sesh/{seshCode}/controller")
     public StompMessage joinSeshAsHost(@DestinationVariable final String seshCode, final StompHeaderAccessor headerAccessor) {
 
         try {
