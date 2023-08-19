@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Command {
 
-    private String playerId;
+    private String playerName;
     private String type;
     private String body;
 }

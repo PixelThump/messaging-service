@@ -80,7 +80,7 @@ public class SeshController {
 
         log.info("Entering sendCommandToSesh with message={}, seshCode={}, socketId={}", message, seshCode, socketId);
         try {
-            message.getCommand().setPlayerId(socketId);
+            message.getCommand().setPlayerName(socketId);
             this.stompService.sendCommandToSesh(message.getCommand(), seshCode);
             StompMessage  reply = messageFactory.getAckMessage();
             log.info("Exiting sendCommandToSesh with reply={}", reply);
