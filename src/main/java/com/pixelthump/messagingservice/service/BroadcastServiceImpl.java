@@ -66,8 +66,10 @@ public class BroadcastServiceImpl implements BroadcastService {
 
     private void broadcastToPlayer(Player player, Object payload) {
 
+
         String destination = SESH_BASE_PATH + player.getPlayerId().getSeshCode() + "/" + player.getPlayerId().getPlayerName();
         StompMessage message = stompMessageFactory.getGenericMessage(payload);
+        log.info("broadcastToPlayer: broacasting to destination={} message={}", destination, message);
         messagingTemplate.convertAndSend(destination, message);
     }
 }
