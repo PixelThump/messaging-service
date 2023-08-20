@@ -53,7 +53,7 @@ public class StompServiceImpl implements StompService {
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
 
-        if (playerName.equals("host")){
+        if (playerName.equals("host")) {
 
             throw new ResponseStatusException(HttpStatusCode.valueOf(409));
         }
@@ -71,7 +71,7 @@ public class StompServiceImpl implements StompService {
 
         SeshInfo seshInfo = checkSeshInfoPresent(getSeshInfo(seshCode));
         SeshStateWrapper state;
-        if (reconnectToken == null) {
+        if (reconnectToken == null || reconnectToken.equals("null")) {
             state = joinSesh(seshInfo, "host", Role.HOST);
         } else {
             state = reJoinSesh(seshInfo, "host", reconnectToken);
@@ -96,6 +96,7 @@ public class StompServiceImpl implements StompService {
     }
 
     private String generateReconnectToken() {
+
         return UUID.randomUUID().toString();
     }
 
@@ -103,12 +104,12 @@ public class StompServiceImpl implements StompService {
 
         Player player = playerRepository.findByPlayerId_SeshCodeAndPlayerId_PlayerName(seshInfo.getSeshCode(), playerName);
 
-        if (player == null){
+        if (player == null) {
 
             throw new ResponseStatusException(HttpStatusCode.valueOf(500));
         }
 
-        if (!player.getReconnectToken().equals(reconnectToken)){
+        if (!player.getReconnectToken().equals(reconnectToken)) {
 
             player.setReconnectFailed(true);
             playerRepository.save(player);
