@@ -117,10 +117,11 @@ public class StompServiceImpl implements StompService {
 
         try {
             String apiUrl = backendBasePath + "/" + seshInfo.getSeshType() + "/seshs/" + seshInfo.getSeshCode() + "/players/" + playerName + "/state";
-            ResponseEntity<SeshStateWrapper> responseEntity = restTemplate.getForEntity(apiUrl, SeshStateWrapper.class);
+            ResponseEntity<Object> responseEntity = restTemplate.getForEntity(apiUrl, Object.class);
             player.setReconnectFailed(false);
+            player.setReconnectToken(generateReconnectToken());
             playerRepository.save(player);
-            return responseEntity.getBody();
+            return new SeshStateWrapper(responseEntity.getBody(), player.getReconnectToken());
         } catch (RestClientException e) {
             throw new ResponseStatusException(HttpStatusCode.valueOf(404), e.getMessage());
         }
@@ -143,7 +144,7 @@ public class StompServiceImpl implements StompService {
 
         if (seshInfoOptional.isEmpty()) {
 
-            throw new RuntimeException();
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404));
         }
         return seshInfoOptional.get();
     }
